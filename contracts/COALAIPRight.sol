@@ -58,37 +58,4 @@ contract COALAIPRight is ERC721Token {
       super._setTokenURI(rightId, tokenURI);
     }
   }
-
-  function transferFrom(
-    address _from,
-    address _to,
-    uint256 _tokenId
-  ) public {
-    revert("Based on the underlying license of this token, this method isn't allowed to be executed.");
-  }
-
-  function safeTransferFrom(
-    address _from,
-    address _to,
-    uint256 _tokenId,
-    bytes data
-  ) public {
-    revert("Based on the underlying license of this token, this method isn't allowed to be executed.");
-  }
-
-  function safeTransferFrom(
-    address _from,
-    address _to,
-    uint256 _tokenId
-  ) public {
-    revert("Based on the underlying license of this token, this method isn't allowed to be executed.");
-  }
-
-  function approve(address _approved, uint256 _tokenId) public {
-    revert("Based on the underlying license of this token, this method isn't allowed to be executed.");
-  }
-
-  function setApprovalForAll(address _operator, bool _approved) public {
-    revert("Based on the underlying license of this token, this method isn't allowed to be executed.");
-  }
 }
