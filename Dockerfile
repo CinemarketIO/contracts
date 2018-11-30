@@ -14,4 +14,4 @@ RUN apk --no-cache add --virtual native-deps \
 
 EXPOSE 8545
 
-RUN sh -c "concurrently 'npm run watch' 'ganache-cli --networkId 15 --gasLimit=50000000 -h=0.0.0.0 -p 8545 -m candy maple cake sugar pudding cream honey rich smooth crumble sweet treat'"
+CMD sh -c "concurrently 'npm run watch' 'ganache-cli --networkId 15 --gasLimit=50000000 -h=0.0.0.0 -p 8545 -m candy maple cake sugar pudding cream honey rich smooth crumble sweet treat'"
