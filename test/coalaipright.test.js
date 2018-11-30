@@ -1,7 +1,7 @@
 // @format
 const truffleAssert = require("truffle-assertions");
 
-var CoalaIPRight = artifacts.require("./build/contracts/CoalaIPRight");
+var CoalaIPRight = artifacts.require("./build/contracts/COALAIPRight");
 
 contract("COALA IP Right", function(accounts) {
   it("should create a new token contract and a mint a token", async () => {

@@ -1,5 +1,5 @@
 // @format
-const CoalaIPRight = artifacts.require("./build/contracts/CoalaIPRight");
+const CoalaIPRight = artifacts.require("./build/contracts/COALAIPRight");
 const COALAIPAttestation = artifacts.require(
   "./build/contracts/COALAIPAttestation"
 );
