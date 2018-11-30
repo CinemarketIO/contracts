@@ -47,7 +47,7 @@
     "attestation"
   ],
   "author": "Cinemarket",
-  "license": "not yet choosen",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/CinemarketIO/contracts/issues"
   },
