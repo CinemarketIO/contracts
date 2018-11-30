@@ -1,0 +1,24 @@
+language: node_js
+node_js:
+        - 8.11.3
+install:
+        - npm i
+        - npm install -g ganache-cli@6.1.8
+        - npm install -g truffle
+script:
+    - ganache-cli -p 8545 > /dev/null &
+    - sleep 5
+    - npm run test
+    - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH;
+            else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
+after_success:
+    - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+    - export REPO=cinemarket/contracts
+    - export TAG=`if [ "$BRANCH" == "master" ]; then echo "latest"; else echo $BRANCH
+      ; fi`
+    - docker build -f Dockerfile -t $REPO:$COMMIT .
+    - docker tag $REPO:$COMMIT $REPO:$TAG
+    - docker push $REPO
+env:
+    global:
+        - COMMIT=${TRAVIS_COMMIT::8}
