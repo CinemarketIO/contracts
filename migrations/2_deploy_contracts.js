@@ -1,10 +1,10 @@
 // @format
 const CoalaIPRight = artifacts.require("./build/contracts/COALAIPRight");
-const COALAIPAssertion = artifacts.require(
-  "./build/contracts/COALAIPAssertion"
+const COALAIPRightsConflict = artifacts.require(
+  "./build/contracts/COALAIPRightsConflict"
 );
 
 module.exports = function(deployer) {
   deployer.deploy(CoalaIPRight, "COALA IP RIGHT V2", "CIPR V2");
-  deployer.deploy(COALAIPAssertion);
+  deployer.deploy(COALAIPRightsConflict);
 };
