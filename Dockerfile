@@ -12,6 +12,6 @@ RUN apk --no-cache add --virtual native-deps \
     npm install --quiet && \
     apk del native-deps
 
-EXPOSE 8545
+ENTRYPOINT ["sh", "./scripts/deploy.sh"]
 
-CMD sh -c "concurrently 'npm run watch' 'ganache-cli --networkId 15 --gasLimit=50000000 -h=0.0.0.0 -p 8545 -m candy maple cake sugar pudding cream honey rich smooth crumble sweet treat'"
+EXPOSE 8545

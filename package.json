@@ -30,6 +30,7 @@
   },
   "scripts": {
     "pretest": "truffle compile --reset && truffle migrate --reset",
+    "migrate": "truffle migrate",
     "test": "truffle test",
     "watch": "npm-watch"
   },
