@@ -17,5 +17,5 @@ Runs `ganache-cli` automatically and exposes port 8545.
 
 ```
 docker build -t contracts .
-docker run -d -p 8545:8545 contracts
+docker run -d -p 8545:8545 -e NETWORK=localhost contracts
 ```
