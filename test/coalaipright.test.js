@@ -16,6 +16,7 @@ contract("COALA IP Right", function(accounts) {
 
     assert.equal(await token.balanceOf(addresses[0]), 1);
     assert.equal(await token.tokenURI(0), "https://example.com/0");
+    assert.equal(await token.ownerOf(0), addresses[0]);
     truffleAssert.eventEmitted(res, "Transfer", ev => {
       return ev._to === addresses[0];
     });
