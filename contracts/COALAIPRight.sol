@@ -1,71 +1,59 @@
 pragma solidity ^0.4.23;
 
 import "openzeppelin-solidity/contracts/token/ERC721/ERC721Token.sol";
-import "./strings.sol";
 
 contract COALAIPRight is ERC721Token {
-  using strings for *;
+
+  string public ipfsProvider = "https://ipfs.infura.io/ipfs/";
 
   constructor (string _name, string _symbol) public
     ERC721Token(_name, _symbol)
   {
   }
 
-  // Taken from:
-  // https://github.com/Arachnid/solidity-stringutils#splitting-a-string-into-an-array
-  function stringToArray(string _s) internal pure returns (string[]) {
-    var s = _s.toSlice();
-    var delim = ",".toSlice();
-    var parts = new string[](s.count(delim) + 1);
-    for(uint i = 0; i < parts.length; i++) {
-          parts[i] = s.split(delim).toString();
-    }
-    return parts;
-  }
-
-  // Taken from: https://github.com/oraclize/ethereum-api
-  function parseAddr(string memory _a) internal pure returns (address _parsedAddress) {
-    bytes memory tmp = bytes(_a);
-    uint160 iaddr = 0;
-    uint160 b1;
-    uint160 b2;
-    for (uint i = 2; i < 2 + 2 * 20; i += 2) {
-      iaddr *= 256;
-      b1 = uint160(uint8(tmp[i]));
-      b2 = uint160(uint8(tmp[i + 1]));
-      if ((b1 >= 97) && (b1 <= 102)) {
-        b1 -= 87;
-      } else if ((b1 >= 65) && (b1 <= 70)) {
-        b1 -= 55;
-      } else if ((b1 >= 48) && (b1 <= 57)) {
-        b1 -= 48;
+  function split(
+      bytes _ipfsHashes
+    ) internal pure returns (bytes[])
+    {
+      uint numColons = 0;
+      for (uint i = 0; i < _ipfsHashes.length; i++) {
+          if (_ipfsHashes[i] == 0x3a) {
+              numColons++;
+          }
       }
-      if ((b2 >= 97) && (b2 <= 102)) {
-        b2 -= 87;
-      } else if ((b2 >= 65) && (b2 <= 70)) {
-        b2 -= 55;
-      } else if ((b2 >= 48) && (b2 <= 57)) {
-        b2 -= 48;
+      bytes[] memory hashes = new bytes[](numColons+1);
+      uint ptr = 0;
+      uint countHashes = 0;
+      uint startPtr = ptr;
+      uint end = _ipfsHashes.length;
+      
+      while (ptr <= end) {
+          if (ptr == end || _ipfsHashes[ptr] == 0x3a) {
+              bytes memory hash = new bytes(ptr - startPtr);
+              for (uint j = startPtr; j < ptr; j++) {
+                  hash[j-startPtr] = _ipfsHashes[j];
+              }
+              hashes[countHashes] = hash;
+              countHashes++;
+              startPtr = ptr+1;
+          }
+          ptr++;
       }
-      iaddr += (b1 * 16 + b2);
+      
+      return hashes;
     }
-    return address(iaddr);
-  }
 
   function mint(
-    string _tos,
-    string _tokenURIs
+    address[] _tos,
+    bytes _ipfsHashes
   ) public
   {
-    string[] memory tosArray = stringToArray(_tos);
-    string[] memory tokenURIsArray = stringToArray(_tokenURIs);
-
-    for (uint i = 0; i < tosArray.length; i++) {
-      address to = parseAddr(tosArray[i]);
-      string memory tokenURI = tokenURIsArray[i];
-      uint rightId = totalSupply();
-      super._mint(to, rightId);
-      super._setTokenURI(rightId, tokenURI);
+    bytes[] memory hashes = split(_ipfsHashes);
+    for (uint i = 0; i < hashes.length; i++) {
+        string memory ipfsHash = string(hashes[i]);
+        uint rightId = totalSupply();
+        super._mint(to, rightId);
+        super._setTokenURI(rightId, ipfsProvider+ipfsHash);
     }
   }
 }
