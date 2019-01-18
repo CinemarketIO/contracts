@@ -28,7 +28,7 @@ contract COALAIPRight is ERC721Token {
       uint end = _ipfsHashes.length;
       
       while (ptr <= end) {
-          if (ptr == end || _ipfsHashes[ptr] == 0x3a) {
+          if (ptr == end || _ipfsHashes[ptr] == bytes1(":")) {
               bytes memory hash = new bytes(ptr - startPtr);
               for (uint j = startPtr; j < ptr; j++) {
                   hash[j-startPtr] = _ipfsHashes[j];
@@ -49,11 +49,14 @@ contract COALAIPRight is ERC721Token {
   ) public
   {
     bytes[] memory hashes = split(_ipfsHashes);
+    require(_tos.length == hashes.length);
     for (uint i = 0; i < hashes.length; i++) {
         string memory ipfsHash = string(hashes[i]);
+        string memory tokenURI = string(abi.encodePacked(ipfsProvider, ipfsHash));
+        uint gas = msg.gas;
         uint rightId = totalSupply();
-        super._mint(to, rightId);
-        super._setTokenURI(rightId, ipfsProvider+ipfsHash);
+        super._mint(_tos[i], rightId);
+        super._setTokenURI(rightId, tokenURI);
     }
   }
 }
