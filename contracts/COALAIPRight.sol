@@ -53,7 +53,6 @@ contract COALAIPRight is ERC721Token {
     for (uint i = 0; i < hashes.length; i++) {
         string memory ipfsHash = string(hashes[i]);
         string memory tokenURI = string(abi.encodePacked(ipfsProvider, ipfsHash));
-        uint gas = msg.gas;
         uint rightId = totalSupply();
         super._mint(_tos[i], rightId);
         super._setTokenURI(rightId, tokenURI);
