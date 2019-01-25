@@ -1,14 +1,20 @@
 pragma solidity ^0.4.23;
 
 import "openzeppelin-solidity/contracts/token/ERC721/ERC721Token.sol";
+import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
-contract COALAIPRight is ERC721Token {
+contract COALAIPRight is ERC721Token, Ownable {
 
-  string public ipfsProvider = "https://ipfs.infura.io/ipfs/";
+  string public IPFSProvider;
 
-  constructor (string _name, string _symbol) public
+  constructor (string _name, string _symbol, string _IPFSProvider) public
     ERC721Token(_name, _symbol)
   {
+    IPFSProvider = _IPFSProvider;
+  }
+
+  function setIPFSProvider(string _IPFSProvider) public onlyOwner {
+    IPFSProvider = _IPFSProvider;
   }
 
   function split(
@@ -52,7 +58,7 @@ contract COALAIPRight is ERC721Token {
     require(_tos.length == hashes.length);
     for (uint i = 0; i < hashes.length; i++) {
         string memory ipfsHash = string(hashes[i]);
-        string memory tokenURI = string(abi.encodePacked(ipfsProvider, ipfsHash));
+        string memory tokenURI = string(abi.encodePacked(IPFSProvider, ipfsHash));
         uint rightId = totalSupply();
         super._mint(_tos[i], rightId);
         super._setTokenURI(rightId, tokenURI);
