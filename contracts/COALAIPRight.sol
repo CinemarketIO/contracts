@@ -2,9 +2,9 @@ pragma solidity ^0.4.23;
 
 import "openzeppelin-solidity/contracts/token/ERC721/ERC721Token.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
-import "./kleros/Arbitrable.sol";
+import "./COALAIPArbitrable.sol";
 
-contract COALAIPRight is ERC721Token, Arbitrable, Ownable {
+contract COALAIPRight is ERC721Token, COALAIPArbitrable, Ownable {
 
   string public IPFSProvider;
   uint public arbitrationTimeout;
@@ -18,7 +18,7 @@ contract COALAIPRight is ERC721Token, Arbitrable, Ownable {
     uint _arbitrationTimeout
   ) public
     ERC721Token(_name, _symbol)
-    Arbitrable(_arbitrator, _arbitrationExtraData)
+    COALAIPArbitrable(_arbitrator, _arbitrationExtraData, _arbitrationTimeout)
   {
     IPFSProvider = _IPFSProvider;
     arbitrationTimeout = _arbitrationTimeout;
@@ -32,18 +32,13 @@ contract COALAIPRight is ERC721Token, Arbitrable, Ownable {
     super.setArbitrator(_arbitrator);
   }
 
-  function executeRuling(uint _disputeID, uint _ruling) internal {
-    _disputeID;
-    _ruling;
-  }
-
   function split(
       bytes _ipfsHashes
     ) internal pure returns (bytes[])
     {
       uint numColons = 0;
       for (uint i = 0; i < _ipfsHashes.length; i++) {
-          if (_ipfsHashes[i] == 0x3a) {
+          if (_ipfsHashes[i] == 0x3a) { // bytes(":")
               numColons++;
           }
       }
