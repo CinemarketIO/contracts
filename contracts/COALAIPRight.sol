@@ -2,19 +2,39 @@ pragma solidity ^0.4.23;
 
 import "openzeppelin-solidity/contracts/token/ERC721/ERC721Token.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import "./kleros/Arbitrable.sol";
 
-contract COALAIPRight is ERC721Token, Ownable {
+contract COALAIPRight is ERC721Token, Arbitrable, Ownable {
 
   string public IPFSProvider;
+  uint public arbitrationTimeout;
 
-  constructor (string _name, string _symbol, string _IPFSProvider) public
+  constructor (
+    string _name,
+    string _symbol,
+    string _IPFSProvider,
+    address _arbitrator,
+    bytes _arbitrationExtraData,
+    uint _arbitrationTimeout
+  ) public
     ERC721Token(_name, _symbol)
+    Arbitrable(_arbitrator, _arbitrationExtraData)
   {
     IPFSProvider = _IPFSProvider;
+    arbitrationTimeout = _arbitrationTimeout;
   }
 
   function setIPFSProvider(string _IPFSProvider) public onlyOwner {
     IPFSProvider = _IPFSProvider;
+  }
+
+  function setArbitrator(address _arbitrator) public onlyOwner {
+    super.setArbitrator(_arbitrator);
+  }
+
+  function executeRuling(uint _disputeID, uint _ruling) internal {
+    _disputeID;
+    _ruling;
   }
 
   function split(

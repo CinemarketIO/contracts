@@ -22,7 +22,8 @@ module.exports = {
     development: {
       host: "localhost",
       port: 8545,
-      network_id: "15"
+      network_id: "15",
+      gas: 50000000
     },
     rinkeby: {
       provider: rinkebyProvider,
