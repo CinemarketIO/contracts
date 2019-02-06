@@ -1,27 +1,46 @@
 pragma solidity ^0.4.23;
 
-import "openzeppelin-solidity/contracts/token/ERC721/ERC721Token.sol";
-import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
-import "./COALAIPArbitrable.sol";
+import "./lib/openzeppelin-solidity/token/ERC721/ERC721Token.sol";
+import "./lib/openzeppelin-solidity/ownership/Ownable.sol";
+import "./lib/kleros/Arbitrator.sol";
 
-contract COALAIPRight is ERC721Token, COALAIPArbitrable, Ownable {
+contract COALAIPRight is ERC721Token, Ownable {
+
+  uint8 constant AMOUNT_OF_CHOICES = 2;
 
   string public IPFSProvider;
-  uint public arbitrationTimeout;
+  uint256 public timeout;
+  bytes public extraData;
+  Arbitrator public arbitrator;
+
+  /** @dev To be emitted when a dispute is created to link the correct
+   *  meta-evidence to the disputeID.
+   *  @param _arbitrator The arbitrator of the contract.
+   *  @param _disputeID ID of the dispute in the Arbitrator contract.
+   *  @param _metaEvidenceID Unique identifier of meta-evidence. Should be the
+   *  transactionID.
+   */
+  event Dispute(
+    Arbitrator indexed _arbitrator,
+    uint indexed _disputeID,
+    uint _metaEvidenceID
+  );
+
 
   constructor (
     string _name,
     string _symbol,
     string _IPFSProvider,
     address _arbitrator,
-    bytes _arbitrationExtraData,
-    uint _arbitrationTimeout
+    bytes _extraData,
+    uint _timeout
   ) public
     ERC721Token(_name, _symbol)
-    COALAIPArbitrable(_arbitrator, _arbitrationExtraData, _arbitrationTimeout)
   {
     IPFSProvider = _IPFSProvider;
-    arbitrationTimeout = _arbitrationTimeout;
+    arbitrator = Arbitrator(_arbitrator);
+    extraData = _extraData;
+    timeout = _timeout;
   }
 
   function setIPFSProvider(string _IPFSProvider) public onlyOwner {
@@ -29,7 +48,35 @@ contract COALAIPRight is ERC721Token, COALAIPArbitrable, Ownable {
   }
 
   function setArbitrator(address _arbitrator) public onlyOwner {
-    super.setArbitrator(_arbitrator);
+    arbitrator = Arbitrator(_arbitrator);
+  }
+
+  function raiseDispute(uint256 _tokenId) public payable {
+    uint arbitrationCost = arbitrator.arbitrationCost(extraData);  
+    address currentOwner = super.ownerOf(_tokenId);
+
+    // Check if _tokenId exists
+    require(currentOwner != address(0));
+    require(currentOwner != msg.sender);
+    // Check whether the arbitrationCost was sent
+    require(msg.value == arbitrationCost);
+
+    uint256 disputeId = arbitrator.createDispute.value(arbitrationCost)(
+      AMOUNT_OF_CHOICES, 
+      extraData 
+    );
+
+    // Approving to transfer the _tokenId to msg.sender
+    super.approveFor(msg.sender, _tokenId);
+    // Transferring to the contract until dispute is settled
+    super.transferFrom(currentOwner, address(this), _tokenId);
+
+    emit Dispute(arbitrator, disputeId, _tokenId);
+  }
+
+  function executeRuling(uint _disputeID, uint _ruling) internal {
+    _disputeID;
+    _ruling;
   }
 
   function split(
