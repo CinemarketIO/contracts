@@ -461,4 +461,164 @@ contract("COALA IP Right", function(accounts) {
       truffleAssert.ErrorType.REVERT
     );
   });
+  it("should allow to submit evidence as the prosecutor", async () => {
+    const owner = accounts[0];
+    const defendant = accounts[1];
+    const prosecutor = accounts[2];
+
+    const arbitrator = await CentralizedArbitrator.new(arbitration.price);
+    const token = await CoalaIPRight.new(
+      "CoalaIP Right",
+      "CIPR",
+      "https://ipfs.infura.io/ipfs/",
+      arbitrator.address,
+      arbitration.extraData,
+      arbitration.timeout
+    );
+
+    const hash = "QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t";
+    const tokenURI = "0x" + Buffer.from(hash, "utf8").toString("hex");
+    const addresses = [defendant];
+
+    await token.mint(addresses, tokenURI, {
+      from: defendant
+    });
+    const tokenId = parseInt(await token.totalSupply(), 10) - 1;
+    await token.raiseDispute(tokenId, {
+      from: prosecutor,
+      value: 1
+    });
+
+    const rightsConflictId = 0;
+    const evidence = "JSON according to ERC 1497";
+    const res = await token.submitEvidence(rightsConflictId, evidence, {
+      from: prosecutor
+    });
+    truffleAssert.eventEmitted(res, "Evidence", ev => {
+      return (
+        ev._arbitrator === arbitrator.address &&
+        ev._disputeID.toNumber() === 0 &&
+        ev._party === prosecutor &&
+        ev._evidence === evidence
+      );
+    });
+  });
+  it("should allow to submit evidence as the defendant", async () => {
+    const owner = accounts[0];
+    const defendant = accounts[1];
+    const prosecutor = accounts[2];
+
+    const arbitrator = await CentralizedArbitrator.new(arbitration.price);
+    const token = await CoalaIPRight.new(
+      "CoalaIP Right",
+      "CIPR",
+      "https://ipfs.infura.io/ipfs/",
+      arbitrator.address,
+      arbitration.extraData,
+      arbitration.timeout
+    );
+
+    const hash = "QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t";
+    const tokenURI = "0x" + Buffer.from(hash, "utf8").toString("hex");
+    const addresses = [defendant];
+
+    await token.mint(addresses, tokenURI, {
+      from: defendant
+    });
+    const tokenId = parseInt(await token.totalSupply(), 10) - 1;
+    await token.raiseDispute(tokenId, {
+      from: prosecutor,
+      value: 1
+    });
+
+    const rightsConflictId = 0;
+    const evidence = "JSON according to ERC 1497";
+    const res = await token.submitEvidence(rightsConflictId, evidence, {
+      from: defendant
+    });
+    truffleAssert.eventEmitted(res, "Evidence", ev => {
+      return (
+        ev._arbitrator === arbitrator.address &&
+        ev._disputeID.toNumber() === 0 &&
+        ev._party === defendant &&
+        ev._evidence === evidence
+      );
+    });
+  });
+  it("should revert for an intruder submitting evidence", async () => {
+    const owner = accounts[0];
+    const defendant = accounts[1];
+    const prosecutor = accounts[2];
+    const intruder = accounts[3];
+
+    const arbitrator = await CentralizedArbitrator.new(arbitration.price);
+    const token = await CoalaIPRight.new(
+      "CoalaIP Right",
+      "CIPR",
+      "https://ipfs.infura.io/ipfs/",
+      arbitrator.address,
+      arbitration.extraData,
+      arbitration.timeout
+    );
+
+    const hash = "QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t";
+    const tokenURI = "0x" + Buffer.from(hash, "utf8").toString("hex");
+    const addresses = [defendant];
+
+    await token.mint(addresses, tokenURI, {
+      from: defendant
+    });
+    const tokenId = parseInt(await token.totalSupply(), 10) - 1;
+    await token.raiseDispute(tokenId, {
+      from: prosecutor,
+      value: 1
+    });
+
+    const rightsConflictId = 0;
+    const evidence = "JSON according to ERC 1497";
+    await truffleAssert.fails(
+      token.submitEvidence(rightsConflictId, evidence, {
+        from: intruder
+      }),
+      truffleAssert.ErrorType.REVERT
+    );
+  });
+  it("should revert submitting evidence for an already resolved case", async () => {
+    const owner = accounts[0];
+    const defendant = accounts[1];
+    const prosecutor = accounts[2];
+
+    const arbitrator = await CentralizedArbitrator.new(arbitration.price);
+    const token = await CoalaIPRight.new(
+      "CoalaIP Right",
+      "CIPR",
+      "https://ipfs.infura.io/ipfs/",
+      arbitrator.address,
+      arbitration.extraData,
+      arbitration.timeout
+    );
+
+    const hash = "QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t";
+    const tokenURI = "0x" + Buffer.from(hash, "utf8").toString("hex");
+    const addresses = [defendant];
+
+    await token.mint(addresses, tokenURI, {
+      from: defendant
+    });
+    const tokenId = parseInt(await token.totalSupply(), 10) - 1;
+    await token.raiseDispute(tokenId, {
+      from: prosecutor,
+      value: 1
+    });
+    await arbitrator.giveRuling(0, 0, { from: owner });
+
+    const rightsConflictId = 0;
+    const evidence = "JSON according to ERC 1497";
+    await truffleAssert.fails(
+      token.submitEvidence(rightsConflictId, evidence, {
+        from: defendant
+      }),
+      truffleAssert.ErrorType.REVERT
+    );
+  });
 });

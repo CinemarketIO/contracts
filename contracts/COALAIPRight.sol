@@ -41,6 +41,23 @@ contract COALAIPRight is ERC721Token, Ownable {
     uint _metaEvidenceID
   );
 
+  /** @dev To be raised when evidence is submitted. Should point to the
+   * resource (evidences are not to be stored on chain due to gas
+   * considerations).  
+   * @param _arbitrator The arbitrator of the contract.
+   * @param _disputeID ID of the dispute in the Arbitrator contract.  @param
+   * _party The address of the party submitting the evidence. Note that 0 is
+   * kept for evidences not submitted by any party.
+   * @param _evidence A link to an evidence JSON that follows the ERC 1497
+   * Evidence standard (https://github.com/ethereum/EIPs/issues/1497).
+   */
+  event Evidence(
+    Arbitrator indexed _arbitrator,
+    uint indexed _disputeID,
+    address indexed _party,
+    string _evidence
+  );
+
   /** @dev To be raised when a ruling is given.
    *  @param _arbitrator The arbitrator giving the ruling.
    *  @param _disputeID ID of the dispute in the Arbitrator contract.
@@ -119,6 +136,16 @@ contract COALAIPRight is ERC721Token, Ownable {
   function rule(uint _dispute, uint _ruling) public {
     executeRuling(_dispute, _ruling);
     emit Ruling(Arbitrator(msg.sender), _dispute, _ruling);
+  }
+
+  function submitEvidence(uint _rightsConflictID, string _evidence) {
+    RightsConflict storage rightsConflict = rightConflicts[_rightsConflictID];
+
+    require(msg.sender == rightsConflict.defendant ||
+            msg.sender == rightsConflict.prosecutor);
+    require(rightsConflict.status == Status.Created);
+
+    emit Evidence(arbitrator, rightsConflict.disputeID, msg.sender, _evidence);
   }
 
   function executeRuling(uint _disputeID, uint _ruling) internal {
