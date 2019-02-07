@@ -119,4 +119,11 @@ contract CentralizedArbitrator is Arbitrator {
     function currentRuling(uint _disputeID) public view returns(uint ruling) {
         return disputes[_disputeID].ruling;
     }
+
+    /** @dev Return the length of disputes.
+     *  @return The length of disputes.
+     */
+    function getDisputesLength() public view returns(uint) {
+      return disputes.length;
+    }
 }
