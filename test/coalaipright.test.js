@@ -80,7 +80,7 @@ contract("COALA IP Right", function(accounts) {
     );
     const intruder = accounts[1];
     await truffleAssert.fails(
-      token.setIPFSProvider("malicious ipfs url", { from: intruder }),
+      await token.setIPFSProvider("malicious ipfs url", { from: intruder }),
       truffleAssert.ErrorType.REVERT
     );
   });
@@ -178,7 +178,7 @@ contract("COALA IP Right", function(accounts) {
     );
     await truffleAssert.fails(
       // tokenId 0 doesn't exist
-      token.raiseDispute(0, {
+      await token.raiseDispute(0, {
         from: accounts[1],
         value: 1
       }),
@@ -204,7 +204,7 @@ contract("COALA IP Right", function(accounts) {
     });
     const tokenId = parseInt(await token.totalSupply(), 10) - 1;
     await truffleAssert.fails(
-      token.raiseDispute(tokenId, {
+      await token.raiseDispute(tokenId, {
         from: accounts[1],
         // min price is 1
         value: 0
@@ -231,7 +231,7 @@ contract("COALA IP Right", function(accounts) {
     });
     const tokenId = parseInt(await token.totalSupply(), 10) - 1;
     await truffleAssert.fails(
-      token.raiseDispute(tokenId, {
+      await token.raiseDispute(tokenId, {
         // owner raises dispute on own token
         from: accounts[0],
         value: 1
@@ -430,7 +430,7 @@ contract("COALA IP Right", function(accounts) {
     assert.equal(status, 1);
     // Give ruling again
     await truffleAssert.fails(
-      arbitrator.giveRuling(disputeId, 1, { from: owner }),
+      await arbitrator.giveRuling(disputeId, 1, { from: owner }),
       truffleAssert.ErrorType.REVERT
     );
   });
@@ -457,7 +457,7 @@ contract("COALA IP Right", function(accounts) {
     const disputeId =
       (await arbitrator.getDisputesLength.call({ from: owner })) - 1;
     await truffleAssert.fails(
-      arbitrator.giveRuling(disputeId, 1, { from: owner }),
+      await arbitrator.giveRuling(disputeId, 1, { from: owner }),
       truffleAssert.ErrorType.REVERT
     );
   });
@@ -577,7 +577,7 @@ contract("COALA IP Right", function(accounts) {
     const rightsConflictId = 0;
     const evidence = "JSON according to ERC 1497";
     await truffleAssert.fails(
-      token.submitEvidence(rightsConflictId, evidence, {
+      await token.submitEvidence(rightsConflictId, evidence, {
         from: intruder
       }),
       truffleAssert.ErrorType.REVERT
@@ -615,7 +615,7 @@ contract("COALA IP Right", function(accounts) {
     const rightsConflictId = 0;
     const evidence = "JSON according to ERC 1497";
     await truffleAssert.fails(
-      token.submitEvidence(rightsConflictId, evidence, {
+      await token.submitEvidence(rightsConflictId, evidence, {
         from: defendant
       }),
       truffleAssert.ErrorType.REVERT
